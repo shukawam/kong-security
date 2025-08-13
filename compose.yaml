@@ -66,28 +66,27 @@ services:
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       # Kong Manager Authentication Settings
       KONG_ENFORCE_RBAC: on
-      KONG_PASSWORD: kong
       # Enable Basic Auth for Kong Manager
       # see: https://developer.konghq.com/plugins/basic-auth/reference/
       # KONG_ADMIN_GUI_AUTH: basic-auth
+      # KONG_PASSWORD: kong
       # KONG_ADMIN_GUI_SESSION_CONF: |
       #   { "secret": "kong" }
       # Enable OpenID Connect for Kong Manager
       # see: https://developer.konghq.com/plugins/openid-connect/reference/
-      # KONG_ADMIN_GUI_AUTH: openid-connect
-      # KONG_ADMIN_GUI_AUTH_CONF: |
-      #   { 
-      #     "issuer": "${ISSUER}",
-      #     "client_id": ["${CLIENT_ID}"],
-      #     "client_secret": ["${CLIENT_SECRET}"],
-      #     "authenticated_groups_claim": ["https://shukawam.me/groups"],
-      #     "redirect_uri": ["http://localhost:8001/auth"],
-      #     "login_redirect_uri": ["http://localhost:8002"],
-      #     "logout_redirect_uri": ["http://localhost:8002"],
-      #     "scopes": ["openid", "profile", "email"],
-      #     "authorization_endpoint": "https://auth0.shukawam.me/authorize",
-      #     "admin_auto_create_rbac_token_disabled": false,
-      #   }
+      KONG_ADMIN_GUI_AUTH: openid-connect
+      KONG_ADMIN_GUI_AUTH_CONF: |
+        { 
+          "issuer": "${ISSUER}",
+          "client_id": ["${CLIENT_ID}"],
+          "client_secret": ["${CLIENT_SECRET}"],
+          "authenticated_groups_claim": ["${AUTHENTICATED_GROUPS_CLAIM}"],
+          "redirect_uri": ["http://localhost:8001/auth"],
+          "login_redirect_uri": ["http://localhost:8002"],
+          "logout_redirect_uri": ["http://localhost:8002"],
+          "scopes": ["openid", "profile", "email"],
+          "admin_auto_create_rbac_token_disabled": false,
+        }
     healthcheck:
       test:
         ["CMD-SHELL", "curl -f http://localhost:8100/status/ready || exit 1"]
@@ -103,7 +102,7 @@ services:
     command:
       ["gateway", "sync", "--kong-addr", "http://gateway:8001", "kong.yaml"]
     environment:
-      DECK_ISSUER: ${DECK_ISSUER:-}
+      DECK_ISSUER: ${ISSUER:-}
       DECK_CLIENT_ID: ${DECK_CLIENT_ID:-}
       DECK_CLIENT_SECRET: ${DECK_CLIENT_SECRET:-}
       DECK_AUTHENTICATED_GROUPS_CLAIM: ${DECK_AUTHENTICATED_GROUPS_CLAIM:-}
