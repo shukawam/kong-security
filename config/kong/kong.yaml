@@ -10,6 +10,10 @@ services:
           - /mock
         strip_path: true
 
+consumers:
+  - username: admin@example.com
+  - username: viewer@example.com
+
 plugins:
   ################
   # Security
@@ -27,23 +31,42 @@ plugins:
       # This setting is for demonstration purposes only.
       # Password flow is not recommended for production use.
       auth_methods: [password]
-      authenticated_groups_claim:
-        - ${{ env "DECK_AUTHENTICATED_GROUPS_CLAIM" }}
+      # With ACL(group mapping)
+      # authenticated_groups_claim:
+      #   - ${{ env "DECK_AUTHENTICATED_GROUPS_CLAIM" }}
+      # With Consumer Mapping
+      consumer_claim:
+        - name
       scopes: ["openid", "profile", "email"]
-  - name: acl
-    service: httpbin-service
-    config:
-      allow:
-        - admin
+  # - name: acl
+  #   service: httpbin-service
+  #   config:
+  #     allow:
+  #       - admin
   - name: rate-limiting-advanced
-    service: httpbin-service
+    consumer: admin@example.com
     config:
       limit:
-        - 5
+        - 10
       window_size:
         - 60
       window_type: sliding
-      identifier: ip
+      identifier: consumer
+      strategy: redis
+      sync_rate: 0
+      namespace: counter-storage
+      redis:
+        host: redis
+        port: 6379
+  - name: rate-limiting-advanced
+    consumer: viewer@example.com
+    config:
+      limit:
+        - 3
+      window_size:
+        - 60
+      window_type: sliding
+      identifier: consumer
       strategy: redis
       sync_rate: 0
       namespace: counter-storage
