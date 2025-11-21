@@ -15,7 +15,7 @@ services:
   # --- Kong Gateway ---
   database:
     <<: *default
-    image: postgres:16
+    image: postgres:17
     container_name: database
     environment:
       POSTGRES_USER: kong
@@ -30,7 +30,7 @@ services:
       retries: 3
   migrations:
     <<: *default
-    image: &kong-gateway-image kong/kong-gateway:3.11
+    image: &kong-gateway-image kong/kong-gateway:3.12
     container_name: migrations
     depends_on:
       - database
@@ -65,12 +65,12 @@ services:
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       # Kong Manager Authentication Settings
-      KONG_ENFORCE_RBAC: on
+      # KONG_ENFORCE_RBAC: on
       # Enable Basic Auth for Kong Manager
-      KONG_ADMIN_GUI_AUTH: basic-auth
-      KONG_PASSWORD: kong
-      KONG_ADMIN_GUI_SESSION_CONF: |
-        { "secret": "kong" }
+      # KONG_ADMIN_GUI_AUTH: basic-auth
+      # KONG_PASSWORD: kong
+      # KONG_ADMIN_GUI_SESSION_CONF: |
+      #   { "secret": "kong" }
       # Enable OpenID Connect for Kong Manager
       # see: https://developer.konghq.com/plugins/openid-connect/reference/
       # KONG_ADMIN_GUI_AUTH: openid-connect
